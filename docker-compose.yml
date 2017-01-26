@@ -1,0 +1,35 @@
+version: "2"
+
+services:
+  mariadb:
+    image: wodby/drupal-mariadb:1.0.0
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+
+  php:
+    image: wodby/drupal-php:7.0-1.0.0
+    environment:
+      PHP_SITE_NAME: dev
+      PHP_HOST_NAME: localhost:8000
+      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
+    volumes:
+      - ./app:/var/www/html
+
+  nginx:
+    image: wodby/drupal-nginx:1.10-1.1.0
+    environment:
+      NGINX_SERVER_NAME: localhost
+      NGINX_UPSTREAM_NAME: php
+      DRUPAL_VERSION: 8
+    volumes_from:
+      - php
+    ports:
+      - "8000:80"
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8002:8025"
